@@ -93,8 +93,8 @@ static uint64_t __f_findTableEntryIndex__( HT_s_tableEntry_t* ps_entries, int n_
 	{
 		HT_s_tableEntry_t* ps_entry = ( ps_entries + n_index );
 
-		if ( ps_entry->ps_key == n_capacity )
-			return -1;
+		if ( ps_entry->ps_key == NULL )
+			return n_capacity;
 
 		if ( strncmp( ps_entry->ps_key->pc_content, ps_key->pc_content, ps_key->n_length ) == 0 )
 			return n_index;

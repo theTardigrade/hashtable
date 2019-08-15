@@ -3,7 +3,6 @@
 
 	#include "error.h"
 
-	#include <stdio.h>
 	#include <stdlib.h>
 
 	#define m_allocMemory( px, x_t, n ) ({ \

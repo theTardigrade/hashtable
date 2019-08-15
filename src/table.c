@@ -88,6 +88,19 @@ static HT_s_tableEntry_t* __f_findTableEntry__( HT_s_tableEntry_t* ps_entries, i
 	}
 }
 
+static uint64_t __f_findTableEntryIndex__( HT_s_tableEntry_t* ps_entries, int n_capacity, HT_s_tableEntryKey_t* ps_key ) {
+	for ( uint64_t n_index = ps_key->n_hash % n_capacity; 1; n_index = ( n_index + 1 ) % n_capacity )
+	{
+		HT_s_tableEntry_t* ps_entry = ( ps_entries + n_index );
+
+		if ( ps_entry->ps_key == NULL )
+			return -1;
+
+		if ( strncmp( ps_entry->ps_key->pc_content, ps_key->pc_content, ps_key->n_length ) == 0 )
+			return n_index;
+	}
+}
+
 static bool __f_hasTableExceededFillRatio__( int n_count, int n_capacity )
 {
 	double r_count = ( double )( n_count + 1 );
@@ -215,4 +228,37 @@ void* HT_f_get( HT_s_table_t* ps_table, const char* pc_keyContent, int n_keyLeng
 		return NULL;
 
 	return ps_entry->pv_value;
+}
+
+bool HT_f_exists( HT_s_table_t* ps_table, const char* pc_keyContent, int n_keyLength )
+{
+	__f_validateNull__( ps_table, "table" );
+	__f_validateNull__( pc_keyContent, "key content" );
+
+	HT_s_tableEntryKey_t* ps_key = __f_newTableEntryKey__( pc_keyContent, n_keyLength );
+	HT_s_tableEntry_t* ps_entry = __f_findTableEntry__( ps_table->ps_entries, ps_table->n_capacity, ps_key );
+
+	__f_addTableEntryKeyToGarbage__( ps_table, ps_key );
+
+	return ( ps_entry->ps_key != NULL );
+}
+
+bool HT_f_unset( HT_s_table_t* ps_table, const char* pc_keyContent, int n_keyLength )
+{
+	__f_validateNull__( ps_table, "table" );
+	__f_validateNull__( pc_keyContent, "key content" );
+
+	HT_s_tableEntryKey_t* ps_key = __f_newTableEntryKey__( pc_keyContent, n_keyLength );
+	uint64_t ps_entryIndex = __f_findTableEntryIndex__( ps_table->ps_entries, ps_table->n_capacity, ps_key );
+
+	__f_addTableEntryKeyToGarbage__( ps_table, ps_key );
+
+	if ( ps_entryIndex == -1 )
+		return false;
+
+	HT_s_tableEntry_t* ps_entry = ( ps_table->ps_entries + ps_entryIndex );
+
+	ps_entry->ps_key = NULL;
+
+	return true;
 }

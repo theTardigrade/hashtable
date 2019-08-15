@@ -33,5 +33,7 @@
 	void           HT_f_free( HT_s_table_t* );
 	bool           HT_f_set( HT_s_table_t*, const char*, int, void* );
 	void*          HT_f_get( HT_s_table_t*, const char*, int );
+	bool           HT_f_exists( HT_s_table_t*, const char*, int );
+	bool           HT_f_unset( HT_s_table_t*, const char*, int );
 
 #endif

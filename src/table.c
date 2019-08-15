@@ -274,3 +274,20 @@ void HT_f_clear( HT_s_table_t* ps_table )
 
 	ps_table->n_count = 0;
 }
+
+void HT_f_grow( HT_s_table_t* ps_table, int n_newCapacity )
+{
+	__f_validateNull__( ps_table, "table" );
+
+	int n_oldCapacity = ps_table->n_capacity;
+
+	if ( n_newCapacity > n_oldCapacity )
+	{
+		int n_newCalculatedCapacity = __f_calculateNewTableCapacity__( n_oldCapacity );
+
+		if ( n_newCalculatedCapacity > n_newCapacity )
+			n_newCapacity = n_newCalculatedCapacity;
+
+		__f_increaseTableCapacity__( ps_table, n_newCapacity );
+	}
+}

@@ -262,3 +262,15 @@ bool HT_f_unset( HT_s_table_t* ps_table, const char* pc_keyContent, int n_keyLen
 
 	return true;
 }
+
+void HT_f_clear( HT_s_table_t* ps_table )
+{
+	__f_validateNull__( ps_table, "table" );
+
+	HT_s_tableEntry_t* ps_entries = ps_table->ps_entries;
+
+	for ( int n = 0, n_capacity = ps_table->n_capacity; n < n_capacity; ++n )
+		ps_entries[n].ps_key = NULL;
+
+	ps_table->n_count = 0;
+}

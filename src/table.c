@@ -93,7 +93,7 @@ static uint64_t __f_findTableEntryIndex__( HT_s_tableEntry_t* ps_entries, int n_
 	{
 		HT_s_tableEntry_t* ps_entry = ( ps_entries + n_index );
 
-		if ( ps_entry->ps_key == NULL )
+		if ( ps_entry->ps_key == n_capacity )
 			return -1;
 
 		if ( strncmp( ps_entry->ps_key->pc_content, ps_key->pc_content, ps_key->n_length ) == 0 )
@@ -249,11 +249,12 @@ bool HT_f_unset( HT_s_table_t* ps_table, const char* pc_keyContent, int n_keyLen
 	__f_validateNull__( pc_keyContent, "key content" );
 
 	HT_s_tableEntryKey_t* ps_key = __f_newTableEntryKey__( pc_keyContent, n_keyLength );
-	uint64_t ps_entryIndex = __f_findTableEntryIndex__( ps_table->ps_entries, ps_table->n_capacity, ps_key );
+	int n_capacity = ps_table->n_capacity;
+	uint64_t ps_entryIndex = __f_findTableEntryIndex__( ps_table->ps_entries, n_capacity, ps_key );
 
 	__f_addTableEntryKeyToGarbage__( ps_table, ps_key );
 
-	if ( ps_entryIndex == -1 )
+	if ( ps_entryIndex == n_capacity )
 		return false;
 
 	HT_s_tableEntry_t* ps_entry = ( ps_table->ps_entries + ps_entryIndex );

@@ -5,7 +5,6 @@ SRC_FILES = $(addsuffix .c, $(addprefix $(SRC_DIR), \
 BUILD_DIR = lib/
 BUILD_OPTS = -Wall -lm
 BUILD_FILE = $(BUILD_DIR)table.o
-DEBUG_OPTS=--leak-check=full --show-reachable=yes --track-origins=yes -v
 
 .PHONY: build
 

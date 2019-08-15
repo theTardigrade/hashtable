@@ -1,6 +1,8 @@
 #ifndef __MEMORY_H__
 #define __MEMORY_H__
 
+	#include "error.h"
+
 	#include <stdio.h>
 	#include <stdlib.h>
 
@@ -11,10 +13,7 @@
 				: realloc( px, sizeof( x_t ) * n ) \
 		); \
 		if ( px_2 == NULL ) \
-		{ \
-			fprintf( stderr, "cannot allocate memory\n" ); \
-			exit( 1 ); \
-		} \
+			m_logError( "cannot allocate memory\n" ); \
 		px_2; \
 	})
 

@@ -23,10 +23,10 @@ static uint64_t __f_generateTableEntryKeyHash__( const char* pc_content, int n_l
 static void __f_validateTableEntryKeyContent__( const char* pc_content, int* pn_length )
 {
 	if ( *pn_length < 0 )
-		*pn_length = strnlen( pc_content, TABLE_ENTRY_KEY_MAX_LENGTH + 1 );
+		*pn_length = strnlen( pc_content, n_TABLE_ENTRY_KEY_MAX_LENGTH + 1 );
 
-	if ( *pn_length > TABLE_ENTRY_KEY_MAX_LENGTH )
-		m_logError( "table entry key length cannot be greater than %d\n", TABLE_ENTRY_KEY_MAX_LENGTH );
+	if ( *pn_length > n_TABLE_ENTRY_KEY_MAX_LENGTH )
+		m_logError( "table entry key length cannot be greater than %d\n", n_TABLE_ENTRY_KEY_MAX_LENGTH );
 }
 
 static HT_s_tableEntryKey_t* __f_newTableEntryKey__( const char* pc_content, int n_length )
@@ -72,7 +72,7 @@ static void __f_freeTableEntryKeyGarbage__( HT_s_table_t* ps_table )
 
 static void __f_addTableEntryKeyToGarbage__( HT_s_table_t* ps_table, HT_s_tableEntryKey_t* ps_tableEntryKey )
 {
-	if ( ps_table->n_entryKeyGarbageCount == TABLE_ENTRY_KEY_MAX_GARBAGE_COUNT )
+	if ( ps_table->n_entryKeyGarbageCount == n_TABLE_ENTRY_KEY_MAX_GARBAGE_COUNT )
 		__f_freeTableEntryKeyGarbage__( ps_table );
 	
 	ps_table->aps_entryKeyGarbage[ps_table->n_entryKeyGarbageCount++] = ps_tableEntryKey;
@@ -110,7 +110,7 @@ static uint64_t __f_findTableEntryIndex__( HT_s_tableEntry_t* ps_entries, int n_
 static bool __f_hasTableExceededFillRatio__( int n_count, int n_capacity )
 {
 	double r_count = ( double )( n_count );
-	double r_relativeCapacity = ( double )( n_capacity ) * TABLE_MAX_FILL_RATIO;
+	double r_relativeCapacity = ( double )( n_capacity ) * r_TABLE_MAX_FILL_RATIO;
 
 	return ( r_count > r_relativeCapacity );
 }
@@ -118,9 +118,9 @@ static bool __f_hasTableExceededFillRatio__( int n_count, int n_capacity )
 static int __f_calculateNewTableCapacity__( int n_oldCapacity )
 {
 	if ( n_oldCapacity == 0 )
-		return TABLE_INITAL_CAPACITY;
+		return n_TABLE_INITAL_CAPACITY;
 
-	double r_newCapacity = ( double )( n_oldCapacity ) * TABLE_CAPACITY_MULTIPLIER;
+	double r_newCapacity = ( double )( n_oldCapacity ) * r_TABLE_CAPACITY_MULTIPLIER;
 
 	return ( int )ceil( r_newCapacity );
 }

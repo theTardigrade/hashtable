@@ -79,6 +79,9 @@ static void __f_addTableEntryKeyToGarbage__( HT_s_table_t* ps_table, HT_s_tableE
 }
 
 static HT_s_tableEntry_t* __f_findTableEntry__( HT_s_tableEntry_t* ps_entries, int n_capacity, HT_s_tableEntryKey_t* ps_key ) {
+	if ( n_capacity == 0 )
+		return NULL;
+
 	for ( uint64_t n_index = ps_key->n_hash % n_capacity; 1; n_index = ( n_index + 1 ) % n_capacity )
 	{
 		HT_s_tableEntry_t* ps_entry = ( ps_entries + n_index );
@@ -89,6 +92,9 @@ static HT_s_tableEntry_t* __f_findTableEntry__( HT_s_tableEntry_t* ps_entries, i
 }
 
 static uint64_t __f_findTableEntryIndex__( HT_s_tableEntry_t* ps_entries, int n_capacity, HT_s_tableEntryKey_t* ps_key ) {
+	if ( n_capacity == 0 )
+		return n_capacity;
+
 	for ( uint64_t n_index = ps_key->n_hash % n_capacity; 1; n_index = ( n_index + 1 ) % n_capacity )
 	{
 		HT_s_tableEntry_t* ps_entry = ( ps_entries + n_index );
@@ -158,9 +164,6 @@ HT_s_table_t* HT_f_new()
 	ps_table->n_capacity = 0;
 	ps_table->ps_entries = NULL;
 	ps_table->n_entryKeyGarbageCount = 0;
-
-	int n_newCapacity = __f_calculateNewTableCapacity__( 0 );
-	__f_increaseTableCapacity__( ps_table, n_newCapacity );
 
 	return ps_table;
 }

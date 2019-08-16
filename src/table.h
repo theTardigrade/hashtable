@@ -4,11 +4,11 @@
 	#include <stdbool.h>
 	#include <stdint.h>
 
-	#define r_TABLE_MAX_FILL_RATIO               0.75
-	#define n_TABLE_INITAL_CAPACITY              128
-	#define r_TABLE_CAPACITY_MULTIPLIER          1.75
-	#define n_TABLE_ENTRY_KEY_MAX_LENGTH         ( 1 << 20 )
-	#define n_TABLE_ENTRY_KEY_MAX_GARBAGE_COUNT  128
+	#define HT_r_TABLE_MAX_FILL_RATIO               0.75
+	#define HT_n_TABLE_INITAL_CAPACITY              128
+	#define HT_r_TABLE_CAPACITY_MULTIPLIER          1.75
+	#define HT_n_TABLE_ENTRY_KEY_MAX_LENGTH         ( 1 << 20 )
+	#define HT_n_TABLE_ENTRY_KEY_MAX_GARBAGE_COUNT  128
 
 	typedef struct {
 		char*     pc_content;
@@ -25,7 +25,7 @@
 		HT_s_tableEntry_t*     ps_entries;
 		int                    n_count;
 		int                    n_capacity;
-		HT_s_tableEntryKey_t*  aps_entryKeyGarbage[n_TABLE_ENTRY_KEY_MAX_GARBAGE_COUNT];
+		HT_s_tableEntryKey_t*  aps_entryKeyGarbage[HT_n_TABLE_ENTRY_KEY_MAX_GARBAGE_COUNT];
 		int                    n_entryKeyGarbageCount;
 	} HT_s_table_t;
 

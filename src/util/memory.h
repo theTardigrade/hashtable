@@ -6,7 +6,7 @@
 	#include <stdlib.h>
 
 	#define m_allocMemory( px, x_t, n ) ({ \
-		x_t * px_2 = ( x_t * )( \
+		x_t* px_2 = ( x_t* )( \
 			( px == NULL ) \
 				? malloc( sizeof( x_t ) * n ) \
 				: realloc( px, sizeof( x_t ) * n ) \

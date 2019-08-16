@@ -103,7 +103,7 @@ static uint64_t __f_findTableEntryIndex__( HT_s_tableEntry_t* ps_entries, int n_
 
 static bool __f_hasTableExceededFillRatio__( int n_count, int n_capacity )
 {
-	double r_count = ( double )( n_count + 1 );
+	double r_count = ( double )( n_count );
 	double r_relativeCapacity = ( double )( n_capacity ) * TABLE_MAX_FILL_RATIO;
 
 	return ( r_count > r_relativeCapacity );
@@ -159,6 +159,9 @@ HT_s_table_t* HT_f_new()
 	ps_table->ps_entries = NULL;
 	ps_table->n_entryKeyGarbageCount = 0;
 
+	int n_newCapacity = __f_calculateNewTableCapacity__( 0 );
+	__f_increaseTableCapacity__( ps_table, n_newCapacity );
+
 	return ps_table;
 }
 
@@ -191,7 +194,7 @@ bool HT_f_set( HT_s_table_t* ps_table, const char* pc_keyContent, int n_keyLengt
 
 	int n_oldCapacity = ps_table->n_capacity;
 
-	if ( __f_hasTableExceededFillRatio__( ps_table->n_count, n_oldCapacity ) )
+	if ( __f_hasTableExceededFillRatio__( ps_table->n_count + 1, n_oldCapacity ) )
 	{
 		int n_newCapacity = __f_calculateNewTableCapacity__( n_oldCapacity );
 		__f_increaseTableCapacity__( ps_table, n_newCapacity );

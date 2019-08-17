@@ -230,7 +230,7 @@ HT_s_table_t* HT_f_new()
 	return ps_table;
 }
 
-HT_s_table_t* HT_f_newCopy( HT_s_table_t* ps_sourceTable )
+HT_s_table_t* HT_f_newCopy( const HT_s_table_t* ps_sourceTable )
 {
 	HT_s_table_t* ps_table = HT_f_new();
 
@@ -381,7 +381,7 @@ bool HT_f_growForExpectedCount( HT_s_table_t* ps_table, int n_newCount )
 	return true;
 }
 
-void HT_f_copy( HT_s_table_t* ps_destTable, HT_s_table_t* ps_sourceTable )
+void HT_f_copy( HT_s_table_t* ps_destTable, const HT_s_table_t* ps_sourceTable )
 {
 	for ( int n = ps_sourceTable->n_capacity - 1; n >= 0; --n )
 	{

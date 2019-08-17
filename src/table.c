@@ -37,7 +37,7 @@ static HT_s_tableEntryKey_t* __f_newTableEntryKey__( const char* pc_content, int
 
 	char* pc_tableEntryKeyContent = ( ps_tableEntryKey->pc_content = m_allocMemory( NULL, char, n_length + 1 ) );
 
-	for ( int n = 0; n < n_length; ++n )
+	for ( int n = n_length - 1; n >= 0; --n )
 		*( pc_tableEntryKeyContent + n ) = *( pc_content + n );
 
 	*( pc_tableEntryKeyContent + n_length ) = '\0';
@@ -61,7 +61,7 @@ static void __f_freeTableEntryKeyGarbage__( HT_s_table_t* ps_table )
 {
 	HT_s_tableEntryKey_t** pps_tableEntryKeyGarbage = ps_table->aps_entryKeyGarbage;
 
-	for ( int n = 0, n_count = ps_table->n_entryKeyGarbageCount; n < n_count; ++n )
+	for ( int n = ps_table->n_entryKeyGarbageCount - 1; n >= 0; --n )
 	{
 		HT_s_tableEntryKey_t* ps_tableEntryKey = *( pps_tableEntryKeyGarbage + n );
 		__f_freeTableEntryKey__( ps_tableEntryKey );
@@ -79,7 +79,8 @@ static void __f_addTableEntryKeyToGarbage__( HT_s_table_t* ps_table, HT_s_tableE
 }
 
 // do not call when n_capacity == 0, because of potential divide-by-zero error
-static HT_s_tableEntry_t* __f_findTableEntry__( HT_s_tableEntry_t* ps_entries, int n_capacity, HT_s_tableEntryKey_t* ps_key ) {
+static HT_s_tableEntry_t* __f_findTableEntry__( HT_s_tableEntry_t* ps_entries, int n_capacity, HT_s_tableEntryKey_t* ps_key )
+{
 	HT_s_tableEntry_t* ps_tombstoneEntry = NULL;
 
 	for ( uint64_t n_index = ps_key->n_hash % n_capacity; 1; n_index = ( n_index + 1 ) % n_capacity )
@@ -122,7 +123,7 @@ static void __f_increaseTableCapacity__( HT_s_table_t* ps_table, int n_newCapaci
 	HT_s_tableEntry_t* ps_newEntries = m_allocMemory( NULL, HT_s_tableEntry_t, n_newCapacity );
 	HT_s_tableEntry_t* ps_oldEntries = ps_table->ps_entries;
 
-	for ( int n = 0; n < n_newCapacity; ++n )
+	for ( int n = n_newCapacity - 1; n >= 0; --n )
 	{
 		HT_s_tableEntry_t* ps_entry = ( ps_newEntries + n );
 
@@ -180,7 +181,7 @@ void HT_f_free( HT_s_table_t* ps_table )
 	if ( ps_table == NULL )
 		return;
 
-	for ( int n = 0, n_capacity = ps_table->n_capacity; n < n_capacity; ++n )
+	for ( int n = ps_table->n_capacity - 1; n >= 0; --n )
 	{
 		HT_s_tableEntry_t* ps_tableEntry = ( ps_table->ps_entries + n );
 

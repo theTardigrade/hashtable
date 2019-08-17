@@ -355,7 +355,7 @@ bool HT_f_growForExpectedCount( HT_s_table_t* ps_table, int n_newCount )
 	__f_validateNull__( ps_table, "table" );
 
 	double r_newCapacity = ( double )( n_newCount ) / HT_r_TABLE_MAX_FILL_RATIO + 1;
-	int n_newCapacity = ( int )( r_newCapacity );
+	int n_newCapacity = ( int )( ceil( r_newCapacity ) );
 
 	if ( n_newCapacity <= ps_table->n_capacity )
 		return false;

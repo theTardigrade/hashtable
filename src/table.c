@@ -130,7 +130,7 @@ static void __f_increaseTableCapacity__( HT_s_table_t* ps_table, int n_newCapaci
 		ps_entry->pv_value = NULL;
 	}
 
-	for ( int n = 0, n_oldCapacity = ps_table->n_capacity; n < n_oldCapacity; ++n )
+	for ( int n = ps_table->n_capacity - 1; n >= 0; --n )
 	{
 		HT_s_tableEntry_t* ps_entry = ( ps_oldEntries + n );
 		if ( ps_entry->ps_key == NULL )

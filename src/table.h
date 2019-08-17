@@ -4,7 +4,7 @@
 	#include <stdbool.h>
 	#include <stdint.h>
 
-	#define HT_r_TABLE_MAX_FILL_RATIO               0.75
+	#define HT_r_TABLE_MAX_FILL_RATIO               0.95
 	#define HT_n_TABLE_INITAL_CAPACITY              128
 	#define HT_n_TABLE_CAPACITY_MULTIPLIER          2
 	#define HT_n_TABLE_MAX_CAPACITY                 ( 1 << 30 )

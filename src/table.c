@@ -48,6 +48,25 @@ static HT_s_tableEntryKey_t* __f_newTableEntryKey__( const char* pc_content, int
 	return ps_tableEntryKey;
 }
 
+static HT_s_tableEntryKey_t* __f_newCopyTableEntryKey__( const HT_s_tableEntryKey_t* ps_oldKey )
+{
+	HT_s_tableEntryKey_t* ps_newKey = m_allocMemory( NULL, HT_s_tableEntryKey_t, 1 );
+
+	int n_length = ps_oldKey->n_length;
+	const char* pc_oldKeyContent = ps_oldKey->pc_content;
+	char* pc_newKeyContent = ( ps_newKey->pc_content = m_allocMemory( NULL, char, n_length + 1 ) );
+
+	for ( int n = n_length - 1; n >= 0; --n )
+		*( pc_newKeyContent + n ) = *( pc_oldKeyContent + n );
+
+	*( pc_newKeyContent + n_length ) = '\0';
+
+	ps_newKey->n_hash = ps_oldKey->n_hash;
+	ps_newKey->n_length = n_length;
+
+	return ps_newKey;
+}
+
 static void __f_freeTableEntryKey__( HT_s_tableEntryKey_t* ps_tableEntryKey )
 {
 	if ( ps_tableEntryKey == NULL )
@@ -152,6 +171,31 @@ static void __f_validateNull__( const void* pv_item, const char* pc_itemName )
 		m_logError( "%s cannot be null\n", pc_itemName );
 }
 
+static bool __f_setWithKey__( HT_s_table_t* ps_table, HT_s_tableEntryKey_t* ps_key, void* pv_value )
+{
+	int n_oldCapacity = ps_table->n_capacity;
+
+	if ( __f_hasTableExceededFillRatio__( ps_table->n_count + 1, n_oldCapacity ) )
+	{
+		int n_newCapacity = __f_calculateNewTableCapacity__( n_oldCapacity );
+		__f_increaseTableCapacity__( ps_table, n_newCapacity );
+	}
+
+	HT_s_tableEntry_t* ps_entry = __f_findTableEntry__( ps_table->ps_entries, ps_table->n_capacity, ps_key );
+
+	bool b_isNewKey = ( ps_entry->ps_key == NULL );
+	if ( b_isNewKey )
+	{
+		++ps_table->n_count;
+
+		ps_entry->ps_key = ps_key;
+	}
+
+	ps_entry->pv_value = pv_value;
+
+	return b_isNewKey;
+}
+
 HT_s_table_t* HT_f_new()
 {
 	HT_s_table_t * ps_table = m_allocMemory( NULL, HT_s_table_t, 1 );
@@ -201,27 +245,9 @@ bool HT_f_set( HT_s_table_t* ps_table, const char* pc_keyContent, int n_keyLengt
 
 	HT_s_tableEntryKey_t* ps_key = __f_newTableEntryKey__( pc_keyContent, n_keyLength );
 
-	int n_oldCapacity = ps_table->n_capacity;
-
-	if ( __f_hasTableExceededFillRatio__( ps_table->n_count + 1, n_oldCapacity ) )
-	{
-		int n_newCapacity = __f_calculateNewTableCapacity__( n_oldCapacity );
-		__f_increaseTableCapacity__( ps_table, n_newCapacity );
-	}
-
-	HT_s_tableEntry_t* ps_entry = __f_findTableEntry__( ps_table->ps_entries, ps_table->n_capacity, ps_key );
-
-	bool b_isNewKey = ( ps_entry->ps_key == NULL );
-	if ( b_isNewKey )
-	{
-		++ps_table->n_count;
-
-		ps_entry->ps_key = ps_key;
-	}
-	else
+	bool b_isNewKey = __f_setWithKey__( ps_table, ps_key, pv_value );
+	if ( !b_isNewKey )
 		__f_addTableEntryKeyToGarbage__( ps_table, ps_key );
-
-	ps_entry->pv_value = pv_value;
 
 	return b_isNewKey;
 }
@@ -323,7 +349,9 @@ void HT_f_copy( HT_s_table_t* ps_destTable, HT_s_table_t* ps_sourceTable )
 	{
 		HT_s_tableEntry_t* ps_entry = ( ps_sourceTable->ps_entries + n );
 
-		if ( ps_entry->ps_key != NULL )
-			HT_f_set( ps_destTable, ps_entry->ps_key->pc_content, ps_entry->ps_key->n_length, ps_entry->pv_value );
+		if ( ps_entry->ps_key != NULL ) {
+			HT_s_tableEntryKey_t* ps_newKey = __f_newCopyTableEntryKey__( ps_entry->ps_key );
+			__f_setWithKey__( ps_destTable, ps_newKey, ps_entry->pv_value ); // b_isNewKey should always be true
+		}
 	}
 }

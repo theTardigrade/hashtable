@@ -148,6 +148,8 @@ static void __f_increaseTableCapacity__( HT_s_table_t* ps_table, int n_newCapaci
 		ps_entry->pv_value = NULL;
 	}
 
+	int n_newCount = 0;
+
 	for ( int n = ps_table->n_capacity - 1; n >= 0; --n )
 	{
 		HT_s_tableEntry_t* ps_entry = ( ps_oldEntries + n );
@@ -157,12 +159,15 @@ static void __f_increaseTableCapacity__( HT_s_table_t* ps_table, int n_newCapaci
 		HT_s_tableEntry_t* ps_newEntry = __f_findTableEntry__( ps_newEntries, n_newCapacity, ps_entry->ps_key );
 		ps_newEntry->ps_key = ps_entry->ps_key;
 		ps_newEntry->pv_value = ps_entry->pv_value;
+
+		++n_newCount;
 	}
 
 	m_freeMemory( ps_oldEntries );
 
 	ps_table->ps_entries = ps_newEntries;
 	ps_table->n_capacity = n_newCapacity;
+	ps_table->n_count = n_newCount;
 }
 
 static void __f_validateNull__( const void* pv_item, const char* pc_itemName )
@@ -186,8 +191,7 @@ static bool __f_setWithKey__( HT_s_table_t* ps_table, HT_s_tableEntryKey_t* ps_k
 	bool b_isNewKey = ( ps_entry->ps_key == NULL );
 	if ( b_isNewKey )
 	{
-		if ( ps_entry->pv_value != NULL ) // is not tombstone
-			++ps_table->n_count;
+		++ps_table->n_count;
 
 		ps_entry->ps_key = ps_key;
 	}
@@ -309,6 +313,8 @@ bool HT_f_unset( HT_s_table_t* ps_table, const char* pc_keyContent, int n_keyLen
 
 	ps_entry->ps_key = NULL;
 	ps_entry->pv_value = ( void* )1; // tombstone
+
+	--ps_table->n_count;
 
 	return true;
 }

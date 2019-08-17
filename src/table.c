@@ -113,9 +113,7 @@ static int __f_calculateNewTableCapacity__( int n_oldCapacity )
 	if ( n_oldCapacity == 0 )
 		return HT_n_TABLE_INITAL_CAPACITY;
 
-	double r_newCapacity = ( double )( n_oldCapacity ) * HT_r_TABLE_CAPACITY_MULTIPLIER;
-
-	return ( int )ceil( r_newCapacity );
+	return n_oldCapacity * HT_n_TABLE_CAPACITY_MULTIPLIER;
 }
 
 static void __f_increaseTableCapacity__( HT_s_table_t* ps_table, int n_newCapacity )
@@ -255,7 +253,7 @@ bool HT_f_exists( HT_s_table_t* ps_table, const char* pc_keyContent, int n_keyLe
 
 	int n_capacity = ps_table->n_capacity;
 	if ( n_capacity == 0 )
-		return NULL;
+		return false;
 
 	HT_s_tableEntryKey_t* ps_key = __f_newTableEntryKey__( pc_keyContent, n_keyLength );
 	HT_s_tableEntry_t* ps_entry = __f_findTableEntry__( ps_table->ps_entries, n_capacity, ps_key );

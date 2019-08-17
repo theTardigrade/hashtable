@@ -6,7 +6,7 @@
 
 	#define HT_r_TABLE_MAX_FILL_RATIO               0.75
 	#define HT_n_TABLE_INITAL_CAPACITY              128
-	#define HT_r_TABLE_CAPACITY_MULTIPLIER          1.75
+	#define HT_n_TABLE_CAPACITY_MULTIPLIER          2
 	#define HT_n_TABLE_ENTRY_KEY_MAX_LENGTH         ( 1 << 20 )
 	#define HT_n_TABLE_ENTRY_KEY_MAX_GARBAGE_COUNT  128
 

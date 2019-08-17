@@ -350,6 +350,13 @@ bool HT_f_grow( HT_s_table_t* ps_table, int n_newCapacity )
 	return true;
 }
 
+bool HT_f_growForExpectedCount( HT_s_table_t* ps_table, int n_newCount )
+{
+	double r_newCapacity = ( double )( n_newCount ) / HT_r_TABLE_MAX_FILL_RATIO + 1;
+
+	return HT_f_grow( ps_table, ( int )( r_newCapacity ) );
+}
+
 void HT_f_copy( HT_s_table_t* ps_destTable, HT_s_table_t* ps_sourceTable )
 {
 	for ( int n = ps_sourceTable->n_capacity - 1; n >= 0; --n )

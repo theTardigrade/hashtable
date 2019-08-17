@@ -96,6 +96,19 @@ static void __f_addTableEntryKeyToGarbage__( HT_s_table_t* ps_table, HT_s_tableE
 	ps_table->aps_entryKeyGarbage[ps_table->n_entryKeyGarbageCount++] = ps_tableEntryKey;
 }
 
+static bool __f_compareTableEntryKeyEquality( HT_s_tableEntryKey_t* ps_key1, HT_s_tableEntryKey_t* ps_key2 )
+{
+	if ( ps_key1->n_hash != ps_key2->n_hash )
+		return false;
+
+	int n_length1 = ps_key1->n_length;
+
+	if ( n_length1 != ps_key2->n_length )
+		return false;
+
+	return ( strncmp( ps_key1->pc_content, ps_key2->pc_content, n_length1 ) == 0 );
+}
+
 // do not call when n_capacity == 0, because of potential divide-by-zero error
 static HT_s_tableEntry_t* __f_findTableEntry__( HT_s_tableEntry_t* ps_entries, int n_capacity, HT_s_tableEntryKey_t* ps_key )
 {
@@ -113,7 +126,7 @@ static HT_s_tableEntry_t* __f_findTableEntry__( HT_s_tableEntry_t* ps_entries, i
 			if ( ps_tombstoneEntry == NULL )
 				ps_tombstoneEntry = ps_entry;
 		}
-		else if ( strncmp( ps_entry->ps_key->pc_content, ps_key->pc_content, ps_key->n_length ) == 0 )
+		else if ( __f_compareTableEntryKeyEquality( ps_entry->ps_key, ps_key ) )
 			return ps_entry;
 	}
 }
@@ -157,8 +170,6 @@ static void __f_increaseTableCapacity__( HT_s_table_t* ps_table, int n_newCapaci
 		ps_entry->pv_value = NULL;
 	}
 
-	int n_newCount = 0;
-
 	for ( int n = ps_table->n_capacity - 1; n >= 0; --n )
 	{
 		HT_s_tableEntry_t* ps_entry = ( ps_oldEntries + n );
@@ -168,15 +179,12 @@ static void __f_increaseTableCapacity__( HT_s_table_t* ps_table, int n_newCapaci
 		HT_s_tableEntry_t* ps_newEntry = __f_findTableEntry__( ps_newEntries, n_newCapacity, ps_entry->ps_key );
 		ps_newEntry->ps_key = ps_entry->ps_key;
 		ps_newEntry->pv_value = ps_entry->pv_value;
-
-		++n_newCount;
 	}
 
 	m_freeMemory( ps_oldEntries );
 
 	ps_table->ps_entries = ps_newEntries;
 	ps_table->n_capacity = n_newCapacity;
-	ps_table->n_count = n_newCount;
 }
 
 static void __f_validateNull__( const void* pv_item, const char* pc_itemName )

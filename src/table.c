@@ -134,6 +134,13 @@ static int __f_calculateNewTableCapacity__( int n_oldCapacity )
 	return n_oldCapacity * HT_n_TABLE_CAPACITY_MULTIPLIER;
 }
 
+static int __f_calculateNewTableCapacityForExpectedCount( int n_newCount )
+{
+	double r_newCapacity = ( double )( n_newCount ) / HT_r_TABLE_MAX_FILL_RATIO + 2;
+
+	return ( int )( r_newCapacity );
+}
+
 static void __f_increaseTableCapacity__( HT_s_table_t* ps_table, int n_newCapacity )
 {
 	HT_s_tableEntry_t* ps_newEntries = m_allocMemory( NULL, HT_s_tableEntry_t, n_newCapacity );
@@ -353,8 +360,7 @@ bool HT_f_growForExpectedCount( HT_s_table_t* ps_table, int n_newCount )
 {
 	__f_validateNull__( ps_table, "table" );
 
-	double r_newCapacity = ( double )( n_newCount ) / HT_r_TABLE_MAX_FILL_RATIO + 2;
-	int n_newCapacity = ( int )( r_newCapacity );
+	int n_newCapacity = __f_calculateNewTableCapacityForExpectedCount( n_newCount );
 
 	if ( n_newCapacity <= ps_table->n_capacity )
 		return false;

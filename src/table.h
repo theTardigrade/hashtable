@@ -37,7 +37,7 @@
 	bool           HT_f_exists( HT_s_table_t*, const char*, int );
 	bool           HT_f_unset( HT_s_table_t*, const char*, int );
 	void           HT_f_clear( HT_s_table_t* );
-	void           HT_f_grow( HT_s_table_t*, int );
+	bool           HT_f_grow( HT_s_table_t*, int );
 	void           HT_f_copy( HT_s_table_t*, HT_s_table_t* );
 
 #endif

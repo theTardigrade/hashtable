@@ -78,32 +78,24 @@ static void __f_addTableEntryKeyToGarbage__( HT_s_table_t* ps_table, HT_s_tableE
 	ps_table->aps_entryKeyGarbage[ps_table->n_entryKeyGarbageCount++] = ps_tableEntryKey;
 }
 
+// do not call when n_capacity == 0, because of potential divide-by-zero error
 static HT_s_tableEntry_t* __f_findTableEntry__( HT_s_tableEntry_t* ps_entries, int n_capacity, HT_s_tableEntryKey_t* ps_key ) {
-	if ( n_capacity == 0 )
-		return NULL;
-
-	for ( uint64_t n_index = ps_key->n_hash % n_capacity; 1; n_index = ( n_index + 1 ) % n_capacity )
-	{
-		HT_s_tableEntry_t* ps_entry = ( ps_entries + n_index );
-
-		if ( ps_entry->ps_key == NULL || strncmp( ps_entry->ps_key->pc_content, ps_key->pc_content, ps_key->n_length ) == 0 )
-			return ps_entry;
-	}
-}
-
-static uint64_t __f_findTableEntryIndex__( HT_s_tableEntry_t* ps_entries, int n_capacity, HT_s_tableEntryKey_t* ps_key ) {
-	if ( n_capacity == 0 )
-		return n_capacity;
+	HT_s_tableEntry_t* ps_tombstoneEntry = NULL;
 
 	for ( uint64_t n_index = ps_key->n_hash % n_capacity; 1; n_index = ( n_index + 1 ) % n_capacity )
 	{
 		HT_s_tableEntry_t* ps_entry = ( ps_entries + n_index );
 
 		if ( ps_entry->ps_key == NULL )
-			return n_capacity;
-
-		if ( strncmp( ps_entry->ps_key->pc_content, ps_key->pc_content, ps_key->n_length ) == 0 )
-			return n_index;
+		{
+			if ( ps_entry->pv_value == NULL )
+				return ( ( ps_tombstoneEntry == NULL ) ? ps_entry : ps_tombstoneEntry );
+			
+			if ( ps_tombstoneEntry == NULL )
+				ps_tombstoneEntry = ps_entry;
+		}
+		else if ( strncmp( ps_entry->ps_key->pc_content, ps_key->pc_content, ps_key->n_length ) == 0 )
+			return ps_entry;
 	}
 }
 
@@ -131,7 +123,12 @@ static void __f_increaseTableCapacity__( HT_s_table_t* ps_table, int n_newCapaci
 	HT_s_tableEntry_t* ps_oldEntries = ps_table->ps_entries;
 
 	for ( int n = 0; n < n_newCapacity; ++n )
-		ps_newEntries[n].ps_key = NULL;
+	{
+		HT_s_tableEntry_t* ps_entry = ( ps_newEntries + n );
+
+		ps_entry->ps_key = NULL;
+		ps_entry->pv_value = NULL;
+	}
 
 	for ( int n = 0, n_oldCapacity = ps_table->n_capacity; n < n_oldCapacity; ++n )
 	{
@@ -140,7 +137,7 @@ static void __f_increaseTableCapacity__( HT_s_table_t* ps_table, int n_newCapaci
 			continue;
 
 		HT_s_tableEntry_t* ps_newEntry = __f_findTableEntry__( ps_newEntries, n_newCapacity, ps_entry->ps_key );
-		ps_newEntry->ps_key= ps_entry->ps_key;
+		ps_newEntry->ps_key = ps_entry->ps_key;
 		ps_newEntry->pv_value = ps_entry->pv_value;
 	}
 
@@ -202,7 +199,7 @@ bool HT_f_set( HT_s_table_t* ps_table, const char* pc_keyContent, int n_keyLengt
 	__f_validateNull__( ps_table, "table" );
 	__f_validateNull__( pc_keyContent, "key content" );
 	__f_validateNull__( pv_value, "value" );
-	
+
 	HT_s_tableEntryKey_t* ps_key = __f_newTableEntryKey__( pc_keyContent, n_keyLength );
 
 	int n_oldCapacity = ps_table->n_capacity;
@@ -235,8 +232,12 @@ void* HT_f_get( HT_s_table_t* ps_table, const char* pc_keyContent, int n_keyLeng
 	__f_validateNull__( ps_table, "table" );
 	__f_validateNull__( pc_keyContent, "key content" );
 
+	int n_capacity = ps_table->n_capacity;
+	if ( n_capacity == 0 )
+		return NULL;
+
 	HT_s_tableEntryKey_t* ps_key = __f_newTableEntryKey__( pc_keyContent, n_keyLength );
-	HT_s_tableEntry_t* ps_entry = __f_findTableEntry__( ps_table->ps_entries, ps_table->n_capacity, ps_key );
+	HT_s_tableEntry_t* ps_entry = __f_findTableEntry__( ps_table->ps_entries, n_capacity, ps_key );
 
 	__f_addTableEntryKeyToGarbage__( ps_table, ps_key );
 
@@ -251,8 +252,12 @@ bool HT_f_exists( HT_s_table_t* ps_table, const char* pc_keyContent, int n_keyLe
 	__f_validateNull__( ps_table, "table" );
 	__f_validateNull__( pc_keyContent, "key content" );
 
+	int n_capacity = ps_table->n_capacity;
+	if ( n_capacity == 0 )
+		return NULL;
+
 	HT_s_tableEntryKey_t* ps_key = __f_newTableEntryKey__( pc_keyContent, n_keyLength );
-	HT_s_tableEntry_t* ps_entry = __f_findTableEntry__( ps_table->ps_entries, ps_table->n_capacity, ps_key );
+	HT_s_tableEntry_t* ps_entry = __f_findTableEntry__( ps_table->ps_entries, n_capacity, ps_key );
 
 	__f_addTableEntryKeyToGarbage__( ps_table, ps_key );
 
@@ -264,18 +269,20 @@ bool HT_f_unset( HT_s_table_t* ps_table, const char* pc_keyContent, int n_keyLen
 	__f_validateNull__( ps_table, "table" );
 	__f_validateNull__( pc_keyContent, "key content" );
 
-	HT_s_tableEntryKey_t* ps_key = __f_newTableEntryKey__( pc_keyContent, n_keyLength );
 	int n_capacity = ps_table->n_capacity;
-	uint64_t ps_entryIndex = __f_findTableEntryIndex__( ps_table->ps_entries, n_capacity, ps_key );
+	if ( n_capacity == 0 )
+		return false;
+
+	HT_s_tableEntryKey_t* ps_key = __f_newTableEntryKey__( pc_keyContent, n_keyLength );
+	HT_s_tableEntry_t* ps_entry = __f_findTableEntry__( ps_table->ps_entries, n_capacity, ps_key );
 
 	__f_addTableEntryKeyToGarbage__( ps_table, ps_key );
 
-	if ( ps_entryIndex == n_capacity )
+	if ( ps_entry->ps_key == NULL )
 		return false;
 
-	HT_s_tableEntry_t* ps_entry = ( ps_table->ps_entries + ps_entryIndex );
-
 	ps_entry->ps_key = NULL;
+	ps_entry->pv_value = ( void* )1; // tombstone
 
 	return true;
 }
@@ -286,27 +293,29 @@ void HT_f_clear( HT_s_table_t* ps_table )
 
 	HT_s_tableEntry_t* ps_entries = ps_table->ps_entries;
 
-	for ( int n = 0, n_capacity = ps_table->n_capacity; n < n_capacity; ++n )
-		ps_entries[n].ps_key = NULL;
+	for ( int n = ps_table->n_capacity - 1; n >= 0; --n )
+		( ps_entries + n )->ps_key = NULL;
 
 	ps_table->n_count = 0;
 }
 
-void HT_f_grow( HT_s_table_t* ps_table, int n_newCapacity )
+bool HT_f_grow( HT_s_table_t* ps_table, int n_newCapacity )
 {
 	__f_validateNull__( ps_table, "table" );
 
 	int n_oldCapacity = ps_table->n_capacity;
 
-	if ( n_newCapacity > n_oldCapacity )
-	{
-		int n_newCalculatedCapacity = __f_calculateNewTableCapacity__( n_oldCapacity );
+	if ( n_newCapacity <= n_oldCapacity )
+		return false;
 
-		if ( n_newCalculatedCapacity > n_newCapacity )
-			n_newCapacity = n_newCalculatedCapacity;
+	int n_newCalculatedCapacity = __f_calculateNewTableCapacity__( n_oldCapacity );
 
-		__f_increaseTableCapacity__( ps_table, n_newCapacity );
-	}
+	if ( n_newCalculatedCapacity > n_newCapacity )
+		n_newCapacity = n_newCalculatedCapacity;
+
+	__f_increaseTableCapacity__( ps_table, n_newCapacity );
+
+	return true;
 }
 
 void HT_f_copy( HT_s_table_t* ps_destTable, HT_s_table_t* ps_sourceTable )

@@ -4,7 +4,6 @@
 
 #include <stdbool.h>
 #include <string.h>
-#include <math.h>
 
 // uses the FNV-1a algorithm
 static uint64_t __f_generateTableEntryKeyHash__( const char* pc_content, int n_length )
@@ -354,8 +353,8 @@ bool HT_f_growForExpectedCount( HT_s_table_t* ps_table, int n_newCount )
 {
 	__f_validateNull__( ps_table, "table" );
 
-	double r_newCapacity = ( double )( n_newCount ) / HT_r_TABLE_MAX_FILL_RATIO + 1;
-	int n_newCapacity = ( int )( ceil( r_newCapacity ) );
+	double r_newCapacity = ( double )( n_newCount ) / HT_r_TABLE_MAX_FILL_RATIO + 2;
+	int n_newCapacity = ( int )( r_newCapacity );
 
 	if ( n_newCapacity <= ps_table->n_capacity )
 		return false;

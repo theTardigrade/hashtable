@@ -3,7 +3,7 @@ SRC_FILES = $(addsuffix .c, $(addprefix $(SRC_DIR), \
 	table \
 ))
 BUILD_DIR = lib/
-BUILD_OPTS = -Wall -lm
+BUILD_OPTS = -Wall
 BUILD_FILE = $(BUILD_DIR)table.o
 
 .PHONY: build

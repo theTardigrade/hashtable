@@ -143,6 +143,9 @@ static int __f_calculateNewTableCapacityForExpectedCount( int n_newCount )
 
 static void __f_increaseTableCapacity__( HT_s_table_t* ps_table, int n_newCapacity )
 {
+	if ( n_newCapacity > HT_n_TABLE_MAX_CAPACITY )
+		m_logError( "capacity exceeds maximum allowed" );
+
 	HT_s_tableEntry_t* ps_newEntries = m_allocMemory( NULL, HT_s_tableEntry_t, n_newCapacity );
 	HT_s_tableEntry_t* ps_oldEntries = ps_table->ps_entries;
 

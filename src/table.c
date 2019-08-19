@@ -2,7 +2,6 @@
 #include "util/memory.h"
 #include "util/error.h"
 
-#include <stdbool.h>
 #include <string.h>
 
 // uses the FNV-1a algorithm

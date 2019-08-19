@@ -133,10 +133,11 @@ static HT_s_tableEntry_t* __f_findTableEntry__( HT_s_tableEntry_t* ps_entries, i
 
 static bool __f_hasTableExceededFillRatio__( int n_count, int n_capacity )
 {
-	double r_count = ( double )( n_count );
-	double r_relativeCapacity = ( double )( n_capacity ) * HT_r_TABLE_MAX_FILL_RATIO;
+	return n_count >= n_capacity;
+	// double r_count = ( double )( n_count );
+	// double r_relativeCapacity = ( double )( n_capacity ) * HT_r_TABLE_MAX_FILL_RATIO;
 
-	return ( r_count > r_relativeCapacity );
+	// return ( r_count > r_relativeCapacity );
 }
 
 static int __f_calculateNewTableCapacity__( int n_oldCapacity )
@@ -147,7 +148,7 @@ static int __f_calculateNewTableCapacity__( int n_oldCapacity )
 	return n_oldCapacity * HT_n_TABLE_CAPACITY_MULTIPLIER;
 }
 
-static int __f_calculateNewTableCapacityForExpectedCount( int n_newCount )
+static int __f_calculateNewTableCapacityForExpectedCount__( int n_newCount )
 {
 	double r_newCapacity = ( double )( n_newCount ) / HT_r_TABLE_MAX_FILL_RATIO + 2;
 
@@ -371,7 +372,7 @@ bool HT_f_growForExpectedCount( HT_s_table_t* ps_table, int n_newCount )
 {
 	__f_validateNull__( ps_table, "table" );
 
-	int n_newCapacity = __f_calculateNewTableCapacityForExpectedCount( n_newCount );
+	int n_newCapacity = __f_calculateNewTableCapacityForExpectedCount__( n_newCount );
 
 	if ( n_newCapacity <= ps_table->n_capacity )
 		return false;

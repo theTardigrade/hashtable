@@ -106,7 +106,7 @@ static bool __f_compareTableEntryKeyEquality( HT_s_tableEntryKey_t* ps_key1, HT_
 	if ( n_length1 != ps_key2->n_length )
 		return false;
 
-	return ( strncmp( ps_key1->pc_content, ps_key2->pc_content, n_length1 ) == 0 );
+	return ( memcmp( ps_key1->pc_content, ps_key2->pc_content, n_length1 ) == 0 );
 }
 
 // do not call when n_capacity == 0, because of potential divide-by-zero error

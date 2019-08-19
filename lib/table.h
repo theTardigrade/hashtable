@@ -6,8 +6,8 @@
 
 	#define HT_n_TABLE_INITAL_CAPACITY              128
 	#define HT_n_TABLE_CAPACITY_MULTIPLIER          2
-	#define HT_n_TABLE_MAX_CAPACITY                 ( 1 << 30 ) // 1 GiB
-	#define HT_n_TABLE_ENTRY_KEY_MAX_LENGTH         ( 1 << 20 ) // 1 MiB
+	#define HT_n_TABLE_MAX_CAPACITY                 ( 1 << 30 )
+	#define HT_n_TABLE_ENTRY_KEY_MAX_LENGTH         ( 1 << 20 )
 	#define HT_n_TABLE_ENTRY_KEY_MAX_GARBAGE_COUNT  128
 
 	typedef struct {

@@ -347,9 +347,6 @@ bool HT_f_grow( HT_s_table_t* ps_table, int n_newCapacity )
 	if ( n_newCapacity <= n_oldCapacity )
 		return false;
 	
-	if ( n_newCapacity < HT_n_TABLE_MAX_CAPACITY )
-		++n_newCapacity;
-
 	int n_newCalculatedCapacity = __f_calculateNewTableCapacity__( n_oldCapacity );
 
 	if ( n_newCalculatedCapacity > n_newCapacity )
